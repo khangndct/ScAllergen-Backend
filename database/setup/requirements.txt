@@ -1,0 +1,8 @@
+neo4j==6.0.3
+owlready2==0.49
+dotenv==0.9.9
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+sentence-transformers==5.2.0
+inflect==7.5.0
+nltk==3.9.2
