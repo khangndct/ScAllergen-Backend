@@ -13,7 +13,7 @@ ScAllergen is a backend system designed to identify potential allergens in food 
 Key features include:
 - **Knowledge Graph:** Stores relationships between food products (e.g., "Milk" is a parent of "Yogurt").
 - **Fuzzy Matching:** Uses `RapidFuzz` and `SentenceTransformers` to map messy input text (e.g., "skimmed mlk") to standardized ontology nodes.
-- **Graph Traversal:** Detects hidden allergens by traversing the graph (e.g., detecting "dairy" allergy in "whey protein").
+- **Graph Traversal:** Detects hidden allergens by traversing the ontology graph (e.g., detecting "dairy" allergy in "whey protein").
 ![Project Logo](./docs/images/ScAllergen.png)
 ### Technologies
 - **Language:** Python 3.10+
@@ -34,7 +34,7 @@ Instructions for setting up the development environment.
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/scallergen-backend.git
+https://github.com/khangndct/ScAllergen-Backend.git
 cd scallergen-backend
 ```
 
@@ -44,11 +44,22 @@ Create a `.env` file in the root directory. You can copy the structure below:
 # Neo4j Configuration
 NEO4J_URI=bolt://neo4j:7687
 NEO4J_USER=neo4j
-NEO4J_PASSWORD=your_secure_password 
+NEO4J_PASSWORD=<your_secure_password> 
 
 # Ngrok Configuration
-NGROK_AUTHTOKEN=your_ngrok_token
+NGROK_AUTHTOKEN=<your_ngrok_token>
 ```
+#### Configuration Guide:
+* **NEO4J_PASSWORD:**
+    * Since this project creates a *new* Neo4j container, **you define this password yourself** right here.
+    * Choose any secure password (e.g., `mySecretPassword123`). You will use this same password to log in to the Neo4j Browser later.
+
+* **NGROK_AUTHTOKEN:**
+    * Required to expose your local server to the internet (optional if only testing locally, but recommended).
+    1.  Log in to your [Ngrok Dashboard](https://dashboard.ngrok.com/get-started/your-authtoken).
+    2.  Go to **Your Authtoken** in the sidebar. 
+    3.  Copy the token and paste it here.
+
 
 3. Build and Start the System:
 Run the following command to build the images and start the services (Database, Backend, Ngrok):
