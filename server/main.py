@@ -208,12 +208,13 @@ def suggest_node(text: str):
     result = find_top_nodes_in_memory(clean_text, 5)
     response = []
     for item in result:
+        print(item)
         response.append({
             "name": item["node"]["name"],
             "label": item["node"]["label"]
         })
     return {"suggest_nodes": response}
-    
+
 
 @app.get("/")
 def health_check():
