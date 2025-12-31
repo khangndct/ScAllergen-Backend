@@ -14,7 +14,7 @@ Key features include:
 - **Knowledge Graph:** Stores relationships between food products (e.g., "Milk" is a parent of "Yogurt").
 - **Fuzzy Matching:** Uses `RapidFuzz` and `SentenceTransformers` to map messy input text (e.g., "skimmed mlk") to standardized ontology nodes.
 - **Graph Traversal:** Detects hidden allergens by traversing the graph (e.g., detecting "dairy" allergy in "whey protein").
-![Ảnh Demo Dự Án](link-den-anh-cua-ban.png)
+![Project Logo](./docs/images/ScAllergen.png)
 ### Technologies
 - **Language:** Python 3.10+
 - **Framework:** FastAPI
