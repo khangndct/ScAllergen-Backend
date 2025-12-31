@@ -31,14 +31,14 @@ Instructions for setting up the development environment.
   
 
 ### Installation steps
-1. Clone the repository:
+#### 1. Clone the repository:
 
 ```bash
 https://github.com/khangndct/ScAllergen-Backend.git
 cd scallergen-backend
 ```
 
-2. Configure Environment Variables:
+#### 2. Configure Environment Variables:
 Create a `.env` file in the root directory. You can copy the structure below:
 ```
 # Neo4j Configuration
@@ -49,7 +49,7 @@ NEO4J_PASSWORD=<your_secure_password>
 # Ngrok Configuration
 NGROK_AUTHTOKEN=<your_ngrok_token>
 ```
-#### Configuration Guide:
+##### Configuration Guide:
 * **NEO4J_PASSWORD:**
     * Since this project creates a *new* Neo4j container, **you define this password yourself** right here.
     * Choose any secure password (e.g., `mySecretPassword123`). You will use this same password to log in to the Neo4j Browser later.
@@ -61,20 +61,20 @@ NGROK_AUTHTOKEN=<your_ngrok_token>
     3.  Copy the token and paste it here.
 
 
-3. Build and Start the System:
+#### 3. Build and Start the System:
 Run the following command to build the images and start the services (Database, Backend, Ngrok):
 ```
 docker compose up -d --build
 ```
 
-4. Initialize the Database (First Run Only):
+#### 4. Initialize the Database (First Run Only):
 The database starts empty. You need to run the **Importer** profile to load the FoodOn OWL file, generate embeddings, and create indexes. This process may take a few minutes.
 ```
 docker compose --profile init up --build setup_importer
 ```
 Wait until the process exits with code 0.
 
-5. Restart Backend:
+#### 5. Restart Backend:
 Once the data is imported, restart the backend to load the new data into the RAM cache.
 ```
 docker compose restart backend
