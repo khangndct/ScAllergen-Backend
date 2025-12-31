@@ -4,14 +4,14 @@ Checking 340/349...
 ==============================================================================================================
 ALLERGEN               | TP    TN    FP    | FN (Broken Graph)    | FN (Missing Data)   
 --------------------------------------------------------------------------------------------------------------
-dairy food product     | 98    205   34    | 11                   | 1                   
-egg food product       | 8     275   3     | 63                   | 0                   
-soybean food product   | 30    264   3     | 52                   | 0                   
-peanut food product    | 46    282   13    | 8                    | 0                   
-wheat food product     | 117   178   10    | 44                   | 0                   
-shellfish food product | 41    233   66    | 8                    | 1                   
-fish food product      | 64    225   54    | 6                    | 0                   
-nut food product       | 59    222   62    | 6                    | 0                   
+dairy food product     | 98    202   37    | 11                   | 1                   
+egg food product       | 4     277   1     | 67                   | 0                   
+soybean food product   | 13    264   3     | 69                   | 0                   
+peanut food product    | 45    282   13    | 9                    | 0                   
+wheat food product     | 104   182   6     | 57                   | 0                   
+shellfish food product | 39    279   20    | 10                   | 1                   
+fish food product      | 61    236   43    | 9                    | 0                   
+nut food product       | 59    223   61    | 6                    | 0                   
 --------------------------------------------------------------------------------------------------------------
 
 ==============================================================================================================
@@ -20,35 +20,35 @@ nut food product       | 59    222   62    | 6                    | 0
 ALLERGEN               | Accuracy   | Recall (Safety) | Precision  | F1-Score  
                        | (Overall)  | (Avoid FN)      | (Avoid FP) | (Balance) 
 --------------------------------------------------------------------------------------------------------------
-dairy food product     |  86.82%    |  89.09% ✅ GOOD |  74.24%    |  80.99
-egg food product       |  81.09%    |  11.27% ⚠️ LOW |  72.73%    |  19.51
-soybean food product   |  84.24%    |  36.59% ⚠️ LOW |  90.91%    |  52.17
-peanut food product    |  93.98%    |  85.19% ✅ GOOD |  77.97%    |  81.42
-wheat food product     |  84.53%    |  72.67% ⚠️ LOW |  92.13%    |  81.25
-shellfish food product |  78.51%    |  82.00% ✅ GOOD |  38.32%    |  52.23
-fish food product      |  82.81%    |  91.43% ✅ GOOD |  54.24%    |  68.09
-nut food product       |  80.52%    |  90.77% ✅ GOOD |  48.76%    |  63.44
+dairy food product     |  85.96%    |  89.09% ✅ GOOD |  72.59%    |  80.00
+egg food product       |  80.52%    |   5.63% ⚠️ LOW |  80.00%    |  10.53
+soybean food product   |  79.37%    |  15.85% ⚠️ LOW |  81.25%    |  26.53
+peanut food product    |  93.70%    |  83.33% ✅ GOOD |  77.59%    |  80.36
+wheat food product     |  81.95%    |  64.60% ⚠️ LOW |  94.55%    |  76.75
+shellfish food product |  91.12%    |  78.00% ⚠️ LOW |  66.10%    |  71.56
+fish food product      |  85.10%    |  87.14% ✅ GOOD |  58.65%    |  70.11
+nut food product       |  80.80%    |  90.77% ✅ GOOD |  49.17%    |  63.78
 --------------------------------------------------------------------------------------------------------------
-SYSTEM OVERALL         |  84.06%    |  69.83%          |  65.40%    |  67.54
+SYSTEM OVERALL         |  84.81%    |  63.80%          |  69.69%    |  66.61
 ==============================================================================================================
 
-🔴 URGENT: FIX BROKEN LINKS (Detected 2908 potential cases):
-   [x] Allergen: dairy food product   | Node: 'onion'
-       => Fix: MATCH (a {label: 'onion'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
-   [x] Allergen: dairy food product   | Node: 'nutmeg food product'
-       => Fix: MATCH (a {label: 'nutmeg food product'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
-   [x] Allergen: dairy food product   | Node: 'pepper'
-       => Fix: MATCH (a {label: 'pepper'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
-   [x] Allergen: dairy food product   | Node: 'vegetable (raw)'
-       => Fix: MATCH (a {label: 'vegetable (raw)'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
-   [x] Allergen: dairy food product   | Node: 'vegetable protein'
-       => Fix: MATCH (a {label: 'vegetable protein'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
+🔴 URGENT: FIX BROKEN LINKS (Detected 3528 potential cases):
+   [x] Allergen: soybean food product | Node: 'soybean food product'
+       => Fix: MATCH (a {label: 'soybean food product'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
+   [x] Allergen: soybean food product | Node: 'emulsified cheese product'
+       => Fix: MATCH (a {label: 'emulsified cheese product'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
+   [x] Allergen: soybean food product | Node: 'palm oil'
+       => Fix: MATCH (a {label: 'palm oil'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
+   [x] Allergen: soybean food product | Node: 'skim milk (liquid)'
+       => Fix: MATCH (a {label: 'skim milk (liquid)'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
+   [x] Allergen: soybean food product | Node: 'hazelnut food product'
+       => Fix: MATCH (a {label: 'hazelnut food product'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
        (... and more)
 
 🟡 DATA ENTRY: MISSING NODES (Sample):
+   [?] 'fat-reduced cocoa'
    [?] 'fermented with live kefir cultures'
    [?] 'acidity regulator: lactic acid'
    [?] 'lysozyme from egg'
    [?] 'bifidobacterium live culture'
-   [?] 'pasteurised homogenised semi-skimmed milk'
        (... and more)
