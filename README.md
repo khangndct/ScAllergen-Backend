@@ -6,7 +6,6 @@ The backend service and database for the ScAllergen application.
 ## Index
 - [Introduction](#introduction)
 - [Installation](#installation)
-- [Manage Services](#manage-services)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 ## Introduction
