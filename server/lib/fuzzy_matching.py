@@ -53,7 +53,7 @@ def load_data_from_neo4j(driver):
 
 def hybrid_scorer_07_03(query, choice, **kwargs):
     """
-    Chiến thuật Hybrid 0.7/0.3 (Winner)
+    Strategy: Hybrid 0.7/0.3 (Winner)
     """
     score_char = fuzz.ratio(query, choice)
     score_token = fuzz.token_sort_ratio(query, choice)
@@ -61,7 +61,6 @@ def hybrid_scorer_07_03(query, choice, **kwargs):
 
 
 def find_top_nodes_in_memory(text_input: str, limit: int = 1):
-    """Search trong RAM dùng RapidFuzz"""
     if not text_input: return []
     
     query = text_input.lower().strip()
@@ -69,9 +68,9 @@ def find_top_nodes_in_memory(text_input: str, limit: int = 1):
     results = process.extract(
         query, 
         FOOD_NAMES_LIST, 
-        scorer=hybrid_scorer_07_03, # Vẫn dùng chiến thuật Hybrid 0.7/0.3
-        limit=10,                # Lấy 5 kết quả
-        score_cutoff=60             # Hạ ngưỡng xuống một chút để đảm bảo gợi ý đa dạng
+        scorer=hybrid_scorer_07_03, 
+        limit=10,               
+        score_cutoff=60            
     )
 
     ranked_candidates = []
@@ -89,8 +88,8 @@ def find_top_nodes_in_memory(text_input: str, limit: int = 1):
 
         ranked_candidates.append({
             "name": match_name,
-            "score": final_score,      # Điểm dùng để xếp hạng
-            "fuzzy_score": fuzzy_score, # Điểm gốc để debug
+            "score": final_score,     
+            "fuzzy_score": fuzzy_score, 
             "node": node_data
         })
 

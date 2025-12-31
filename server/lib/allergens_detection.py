@@ -3,8 +3,6 @@ from typing import List, Optional
 def check_graph_connection(scan_label: str, mapped_user_allergies_label: List[str], driver):
     """
     CHECK HAS PATH BETWEEN SCANNED INGREDIENT AND ALL ELEMENTS INT USER-DEFINED ALLERGEN LIST APOC
-    
-    Return: String tên dị nguyên, số bước, và PATH.
     """
 
     allowed_rels = (
@@ -33,18 +31,18 @@ def check_graph_connection(scan_label: str, mapped_user_allergies_label: List[st
             terminatorNodes: allergen_nodes
         }) YIELD path
         
-        WITH last(nodes(path)).label AS found_allergen_label, 
+        WITH last(nodes(path)).label AS allergen_label, 
             nodes(path) AS path_nodes, 
             relationships(path) AS path_rels, 
             length(path) AS path_length 
         WHERE path IS NOT NULL AND path_length >= 0
         
-        WITH found_allergen_label, path_length, 
+        WITH allergen_label, path_length, 
             REDUCE(s = [head(path_nodes).label], i IN RANGE(0, size(path_rels) - 1) | 
                 s + [type(path_rels[i]) + "->", path_nodes[i+1].label]
             ) AS path_elements
             
-        RETURN DISTINCT found_allergen_label, path_length, REDUCE(s = "", x IN path_elements | s + x) AS full_path
+        RETURN DISTINCT allergen_label, path_length, REDUCE(s = "", x IN path_elements | s + x) AS full_path
         ORDER BY path_length ASC
         LIMIT 1
     """
@@ -62,7 +60,7 @@ def check_graph_connection(scan_label: str, mapped_user_allergies_label: List[st
             # path_length = record["path_length"]
             # full_path = record["full_path"]
             
-            # Trả về kết quả
+            # Return result
             return allergen_label
             # return f"{allergen_label} (Path length: {path_length}). PATH: {full_path}"
 
