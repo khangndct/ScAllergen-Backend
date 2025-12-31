@@ -39,6 +39,7 @@ cd scallergen-backend
 ```
 
 2. Configure Environment Variables:
+Create a `.env` file in the root directory. You can copy the structure below:
 ```
 # Neo4j Configuration
 NEO4J_URI=bolt://neo4j:7687
@@ -75,6 +76,7 @@ Once the containers are running, you can access the services via the following e
 - URL: `http://localhost:7474`
 - Username: `neo4j`
 - Password: (The one you set in `.env`)
+
 **Ngrok Dashboard (Tunnel Inspector):**
 - URL: `http://localhost:4040`
 
