@@ -6,12 +6,12 @@ The backend service and database for the ScAllergen application.
 ## Index
 - [Introduction](#introduction)
 - [Installation](#installation)
-- [Manage Services]
+- [Manage Services](#manage-services)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 ## Introduction
 ![Project Logo](./docs/images/ScAllergen.png)
-ScAllergen is a backend system designed to identify potential allergens in food ingredient lists. It leverages **Neo4j** to store a knowledge graph based on the FoodOn ontology.
+ScAllergen is a system designed to identify potential allergens in food ingredient lists. It leverages **Neo4j** to store a knowledge graph based on the FoodOn ontology.
 Key features include:
 - **Knowledge Graph:** Stores relationships between food products (e.g., "Milk" is a parent of "Yogurt").
 - **Fuzzy Matching:** Uses `RapidFuzz` and `SentenceTransformers` to map messy input text (e.g., "skimmed mlk") to standardized ontology nodes.
