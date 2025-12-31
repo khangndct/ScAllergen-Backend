@@ -58,7 +58,7 @@ NGROK_AUTHTOKEN=<your_ngrok_token>
     * Required to expose your local server to the internet (optional if only testing locally, but recommended).
     1.  Log in to your [Ngrok Dashboard](https://dashboard.ngrok.com/get-started/your-authtoken).
     2.  Go to **Your Authtoken** in the sidebar. 
-    3.  Copy the token and paste it here.
+    3.  Copy the token and paste it to `<your_ngrok_token>` in .env file.
 
 
 #### 3. Build and Start the System:
