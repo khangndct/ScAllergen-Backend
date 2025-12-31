@@ -21,34 +21,32 @@ def check_graph_connection(scan_label: str, mapped_user_allergies_label: List[st
     
     
     query = """
-    MATCH (scan:FoodOnTerm) WHERE scan.label = $scan_label
-    MATCH (allergen:FoodOnTerm) WHERE allergen.label IN $mapped_user_allergies_label
+        MATCH (scan:FoodOnTerm) WHERE scan.label = $scan_label
+        MATCH (allergen:FoodOnTerm) WHERE allergen.label IN $mapped_user_allergies_label
 
-    
-    WITH scan, allergen
-    
-    CALL apoc.path.expandConfig(scan, {
-        relationshipFilter: $rels,
-        maxLevel: 7,
-        terminatorNodes: [allergen]
-    }) YIELD path
-    
-    // 4. LỌC VÀ CHUẨN BỊ KẾT QUẢ
-    WITH allergen.label AS allergen_label, nodes(path) AS path_nodes, relationships(path) AS path_rels, length(path) AS path_length 
-    WHERE path IS NOT NULL AND path_length >= 0 
-    
-    // 5. Thu thập Node Labels và Relationship Types
-    WITH allergen_label, path_length, path_nodes, path_rels
-    
-    // Sử dụng REDUCE để xây dựng chuỗi PATH
-    WITH allergen_label, path_length, 
-         REDUCE(s = [head(path_nodes).label], i IN RANGE(0, size(path_rels) - 1) | 
-             s + [type(path_rels[i]) + "->", path_nodes[i+1].label]
-         ) AS path_elements
-         
-    RETURN DISTINCT allergen_label, path_length, REDUCE(s = "", x IN path_elements | s + x) AS full_path
-    ORDER BY path_length ASC
-    LIMIT 1
+        
+        WITH scan, collect(allergen) AS allergen_nodes
+        
+        CALL apoc.path.expandConfig(scan, {
+            relationshipFilter: $rels,
+            maxLevel: 7,
+            terminatorNodes: allergen_nodes
+        }) YIELD path
+        
+        WITH last(nodes(path)).label AS found_allergen_label, 
+            nodes(path) AS path_nodes, 
+            relationships(path) AS path_rels, 
+            length(path) AS path_length 
+        WHERE path IS NOT NULL AND path_length >= 0
+        
+        WITH found_allergen_label, path_length, 
+            REDUCE(s = [head(path_nodes).label], i IN RANGE(0, size(path_rels) - 1) | 
+                s + [type(path_rels[i]) + "->", path_nodes[i+1].label]
+            ) AS path_elements
+            
+        RETURN DISTINCT found_allergen_label, path_length, REDUCE(s = "", x IN path_elements | s + x) AS full_path
+        ORDER BY path_length ASC
+        LIMIT 1
     """
     
 

@@ -10,6 +10,7 @@ from neo4j import GraphDatabase
 from contextlib import asynccontextmanager
 from lib.fuzzy_matching import load_data_from_neo4j, hybrid_scorer_07_03, find_top_nodes_in_memory, find_best_node_text
 from lib.allergens_detection import check_graph_connection
+from lib.clean_string import clean_string
 
 
 # ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▜
@@ -97,7 +98,8 @@ async def check_allergy(request: AllergyRequest):
 
 
     for item in request.user_allergens:
-        node = find_best_node_text(item)
+        clean_item = clean_string(item)
+        node = find_best_node_text(clean_item)
         if node:
             node_label = node["label"]
             mapped_user_allergies_label.append(node_label)
@@ -109,7 +111,8 @@ async def check_allergy(request: AllergyRequest):
 
 
     for item in request.scanned_ingredients:
-        node = find_best_node_text(item)
+        clean_item = clean_string(item)
+        node = find_best_node_text(clean_item)
         if not node:
             continue
         node_label = node["label"]
@@ -144,7 +147,8 @@ async def check_allergy(request: AllergyRequest):
 
     # Mapping User Allergen List
     for item in request.user_allergens:
-        node = find_best_node_text(item)
+        clean_item = clean_string(item)
+        node = find_best_node_text(clean_item)
         if node:
             node_label = node["label"]
             mapped_user_allergies_label.append(node_label)
@@ -153,7 +157,8 @@ async def check_allergy(request: AllergyRequest):
 
     # Mapping Scanned Ingredient List
     for item in request.scanned_ingredients:
-        node = find_best_node_text(item)
+        clean_item = clean_string(item)
+        node = find_best_node_text(clean_item)
         if node:
             node_label = node["label"]
             mapped_scanned_ingredients_label.append(node_label)
@@ -175,7 +180,8 @@ async def check_allergy(request: AllergyRequest):
 @app.get("/debug/node")
 def debug_node(text: str):
     """Giúp bạn kiểm tra xem từ khóa map vào Node ID nào"""
-    result = find_top_nodes_in_memory(text)
+    clean_text = clean_string(text)
+    result = find_top_nodes_in_memory(clean_text)
     if len(result) > 0:
         node = result[0]
         print({
@@ -198,7 +204,8 @@ def debug_node(text: str):
 
 @app.get("/node")
 def suggest_node(text: str):
-    result = find_top_nodes_in_memory(text, 5)
+    clean_text = clean_string(text)
+    result = find_top_nodes_in_memory(clean_text, 5)
     response = []
     for item in result:
         response.append({
@@ -206,7 +213,7 @@ def suggest_node(text: str):
             "label": item["node"]["label"]
         })
     return {"suggest_nodes": response}
-
+    
 
 @app.get("/")
 def health_check():
