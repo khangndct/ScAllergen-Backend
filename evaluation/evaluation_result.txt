@@ -4,14 +4,14 @@ Checking 340/349...
 ==============================================================================================================
 ALLERGEN               | TP    TN    FP    | FN (Broken Graph)    | FN (Missing Data)   
 --------------------------------------------------------------------------------------------------------------
-dairy food product     | 98    202   37    | 11                   | 1                   
-egg food product       | 4     277   1     | 67                   | 0                   
-soybean food product   | 13    264   3     | 69                   | 0                   
+dairy food product     | 99    200   39    | 10                   | 1                   
+egg food product       | 38    276   2     | 33                   | 0                   
+soybean food product   | 31    262   5     | 51                   | 0                   
 peanut food product    | 45    282   13    | 9                    | 0                   
-wheat food product     | 104   182   6     | 57                   | 0                   
-shellfish food product | 39    279   20    | 10                   | 1                   
-fish food product      | 61    236   43    | 9                    | 0                   
-nut food product       | 59    223   61    | 6                    | 0                   
+wheat food product     | 118   182   6     | 43                   | 0                   
+shellfish food product | 41    279   20    | 8                    | 1                   
+fish food product      | 64    248   31    | 6                    | 0                   
+nut food product       | 65    62    222   | 0                    | 0                   
 --------------------------------------------------------------------------------------------------------------
 
 ==============================================================================================================
@@ -20,35 +20,35 @@ nut food product       | 59    223   61    | 6                    | 0
 ALLERGEN               | Accuracy   | Recall (Safety) | Precision  | F1-Score  
                        | (Overall)  | (Avoid FN)      | (Avoid FP) | (Balance) 
 --------------------------------------------------------------------------------------------------------------
-dairy food product     |  85.96%    |  89.09% ✅ GOOD |  72.59%    |  80.00
-egg food product       |  80.52%    |   5.63% ⚠️ LOW |  80.00%    |  10.53
-soybean food product   |  79.37%    |  15.85% ⚠️ LOW |  81.25%    |  26.53
+dairy food product     |  85.67%    |  90.00% ✅ GOOD |  71.74%    |  79.84
+egg food product       |  89.97%    |  53.52% ⚠️ LOW |  95.00%    |  68.47
+soybean food product   |  83.95%    |  37.80% ⚠️ LOW |  86.11%    |  52.54
 peanut food product    |  93.70%    |  83.33% ✅ GOOD |  77.59%    |  80.36
-wheat food product     |  81.95%    |  64.60% ⚠️ LOW |  94.55%    |  76.75
-shellfish food product |  91.12%    |  78.00% ⚠️ LOW |  66.10%    |  71.56
-fish food product      |  85.10%    |  87.14% ✅ GOOD |  58.65%    |  70.11
-nut food product       |  80.80%    |  90.77% ✅ GOOD |  49.17%    |  63.78
+wheat food product     |  85.96%    |  73.29% ⚠️ LOW |  95.16%    |  82.81
+shellfish food product |  91.69%    |  82.00% ✅ GOOD |  67.21%    |  73.87
+fish food product      |  89.40%    |  91.43% ✅ GOOD |  67.37%    |  77.58
+nut food product       |  36.39%    | 100.00% ✅ GOOD |  22.65%    |  36.93
 --------------------------------------------------------------------------------------------------------------
-SYSTEM OVERALL         |  84.81%    |  63.80%          |  69.69%    |  66.61
+SYSTEM OVERALL         |  82.09%    |  75.57%          |  59.71%    |  66.71
 ==============================================================================================================
 
-🔴 URGENT: FIX BROKEN LINKS (Detected 3528 potential cases):
-   [x] Allergen: soybean food product | Node: 'soybean food product'
-       => Fix: MATCH (a {label: 'soybean food product'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
-   [x] Allergen: soybean food product | Node: 'emulsified cheese product'
-       => Fix: MATCH (a {label: 'emulsified cheese product'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
-   [x] Allergen: soybean food product | Node: 'palm oil'
-       => Fix: MATCH (a {label: 'palm oil'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
-   [x] Allergen: soybean food product | Node: 'skim milk (liquid)'
-       => Fix: MATCH (a {label: 'skim milk (liquid)'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
-   [x] Allergen: soybean food product | Node: 'hazelnut food product'
-       => Fix: MATCH (a {label: 'hazelnut food product'}), (b {label: 'soybean food product'}) MERGE (a)-[:IS_A]->(b)
+🔴 URGENT: FIX BROKEN LINKS (Detected 2365 potential cases):
+   [x] Allergen: dairy food product   | Node: 'onion'
+       => Fix: MATCH (a {label: 'onion'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
+   [x] Allergen: dairy food product   | Node: 'nutmeg food product'
+       => Fix: MATCH (a {label: 'nutmeg food product'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
+   [x] Allergen: dairy food product   | Node: 'black pepper food product'
+       => Fix: MATCH (a {label: 'black pepper food product'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
+   [x] Allergen: dairy food product   | Node: 'vegetable (whole or pieces)'
+       => Fix: MATCH (a {label: 'vegetable (whole or pieces)'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
+   [x] Allergen: dairy food product   | Node: 'vegetable protein, hydrolyzed'
+       => Fix: MATCH (a {label: 'vegetable protein, hydrolyzed'}), (b {label: 'dairy food product'}) MERGE (a)-[:IS_A]->(b)
        (... and more)
 
 🟡 DATA ENTRY: MISSING NODES (Sample):
-   [?] 'fat-reduced cocoa'
    [?] 'fermented with live kefir cultures'
    [?] 'acidity regulator: lactic acid'
    [?] 'lysozyme from egg'
    [?] 'bifidobacterium live culture'
+   [?] 'pasteurised homogenised semi-skimmed milk'
        (... and more)
