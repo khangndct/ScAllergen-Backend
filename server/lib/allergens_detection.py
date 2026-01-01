@@ -1,9 +1,31 @@
 from typing import List, Optional
+from lib.create_synonym_cache import get_synonyms_of_label, get_nodes_by_keyword
 
 def check_graph_connection(scan_label: str, mapped_user_allergies_label: List[str], driver):
     """
     CHECK HAS PATH BETWEEN SCANNED INGREDIENT AND ALL ELEMENTS INT USER-DEFINED ALLERGEN LIST APOC
     """
+
+    clean_allergen_labels = [l for l in mapped_user_allergies_label if l and l.strip()]
+    if not clean_allergen_labels:
+        return None
+        
+    # 1. Tính toán Node đích trong RAM (Dùng hàm từ file mới)
+    sensitive_keywords = set()
+    for allergen_label in clean_allergen_labels:
+        syns = get_synonyms_of_label(allergen_label)
+        sensitive_keywords.update(syns)
+    
+    target_node_labels = set()
+    for kw in sensitive_keywords:
+        nodes = get_nodes_by_keyword(kw)
+        target_node_labels.update(nodes)
+        
+    target_labels_list = list(target_node_labels)
+    
+    # 2. Check nhanh
+    if scan_label in target_labels_list:
+        return scan_label
 
     allowed_rels = (
         "IS_A>|"                      # Quan hệ phân loại (Bắt buộc)
@@ -20,30 +42,23 @@ def check_graph_connection(scan_label: str, mapped_user_allergies_label: List[st
     
     query = """
         MATCH (scan:FoodOnTerm) WHERE scan.label = $scan_label
-        MATCH (allergen:FoodOnTerm) WHERE allergen.label IN $mapped_user_allergies_label
-
         
-        WITH scan, collect(allergen) AS allergen_nodes
+        // Neo4j chỉ cần Match vào đúng danh sách ID này (dùng Index Lookup cực nhanh)
+        MATCH (terminator:FoodOnTerm)
+        WHERE terminator.label IN $target_labels
         
+        WITH scan, collect(terminator) AS final_terminator_nodes
+        
+        // SỬA 2: minLevel: 1 vì level 0 đã check ở Python rồi
         CALL apoc.path.expandConfig(scan, {
             relationshipFilter: $rels,
+            minLevel: 0, 
             maxLevel: 7,
-            terminatorNodes: allergen_nodes
+            terminatorNodes: final_terminator_nodes
         }) YIELD path
         
-        WITH last(nodes(path)).label AS allergen_label, 
-            nodes(path) AS path_nodes, 
-            relationships(path) AS path_rels, 
-            length(path) AS path_length 
-        WHERE path IS NOT NULL AND path_length >= 0
-        
-        WITH allergen_label, path_length, 
-            REDUCE(s = [head(path_nodes).label], i IN RANGE(0, size(path_rels) - 1) | 
-                s + [type(path_rels[i]) + "->", path_nodes[i+1].label]
-            ) AS path_elements
-            
-        RETURN DISTINCT allergen_label, path_length, REDUCE(s = "", x IN path_elements | s + x) AS full_path
-        ORDER BY path_length ASC
+        // Lấy node đích (chỉ cần label để báo lỗi)
+        RETURN last(nodes(path)).label AS allergen_label
         LIMIT 1
     """
     
@@ -51,7 +66,7 @@ def check_graph_connection(scan_label: str, mapped_user_allergies_label: List[st
     with driver.session() as session:
         result = session.run(query, 
                                 scan_label=scan_label, 
-                                mapped_user_allergies_label=mapped_user_allergies_label, 
+                                target_labels=target_labels_list,
                                 rels=allowed_rels).single()
 
         

@@ -9,6 +9,7 @@ from typing import List, Optional
 from neo4j import GraphDatabase
 from contextlib import asynccontextmanager
 from lib.fuzzy_matching import load_data_from_neo4j, hybrid_scorer_07_03, find_top_nodes_in_memory, find_best_node_text
+from lib.create_synonym_cache import load_synonym_cache
 from lib.allergens_detection import check_graph_connection
 from lib.clean_string import clean_string
 
@@ -34,6 +35,7 @@ async def lifespan(app: FastAPI):
     # --- STARTUP ---
     try:
         load_data_from_neo4j(driver)
+        load_synonym_cache(driver)
     except Exception as e:
         print(f"Error when loading neo4j data: {e}")
     
@@ -52,9 +54,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # ═══════════════════════════════════════════════
-
-FOOD_CACHE = {}
-FOOD_NAMES_LIST = []
 
 # ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▜
 # ▌2. DATA INPUT/OUTPUT DEFINITION          ▐
