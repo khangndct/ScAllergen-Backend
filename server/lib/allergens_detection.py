@@ -10,7 +10,7 @@ def check_graph_connection(scan_label: str, mapped_user_allergies_label: List[st
     if not clean_allergen_labels:
         return None
         
-    # 1. Tính toán Node đích trong RAM (Dùng hàm từ file mới)
+    # 1. Calculating terminated nodes in RAM (use function in create_synonym_cache module)
     sensitive_keywords = set()
     for allergen_label in clean_allergen_labels:
         syns = get_synonyms_of_label(allergen_label)
