@@ -1,7 +1,7 @@
 # lib/create_synonym_cache.py
 from neo4j import Driver
 
-# --- BIẾN TOÀN CỤC ---
+# --- GLOBAL VARIABLE ---
 # 1. Map xuôi: Label -> [syn1, syn2...] (Để bung rộng User Allergen)
 LABEL_TO_SYNONYMS = {} 
 
@@ -10,8 +10,7 @@ KEYWORD_TO_LABELS = {}
 
 def load_synonym_cache(driver: Driver):
     """
-    Load toàn bộ Label và Synonyms từ Neo4j để xây dựng Reverse Index.
-    Chạy độc lập với Fuzzy Matching để dễ debug.
+    Loading all Label and Synonyms from Neo4j to building Reverse Index
     """
     global LABEL_TO_SYNONYMS, KEYWORD_TO_LABELS
     
@@ -20,8 +19,7 @@ def load_synonym_cache(driver: Driver):
     # Reset cache
     LABEL_TO_SYNONYMS = {}
     KEYWORD_TO_LABELS = {}
-    
-    # Query chỉ lấy những trường cần thiết cho Synonym
+
     query = """
     MATCH (n:FoodOnTerm)
     RETURN n.label AS label, n.synonyms AS synonyms
@@ -32,16 +30,15 @@ def load_synonym_cache(driver: Driver):
         result = session.run(query)
         for record in result:
             label = record["label"]
-            synonyms = record["synonyms"] or [] # Bảo vệ chống None
+            synonyms = record["synonyms"] or []
             
             if not label:
                 continue
 
-            # Chuẩn hóa
             clean_label = label.lower().strip()
             
-            # Tạo tập hợp keywords cho node này
-            # Bao gồm chính label của nó và các synonyms
+            # Create keywords set for this node
+            # Include its label and its synonyms
             all_keywords = set()
             all_keywords.add(clean_label)
             
@@ -70,9 +67,7 @@ def load_synonym_cache(driver: Driver):
 
 # --- GETTERS ---
 def get_synonyms_of_label(label: str):
-    """Lấy danh sách synonym mở rộng của một label"""
     return LABEL_TO_SYNONYMS.get(label, [])
 
 def get_nodes_by_keyword(keyword: str):
-    """Tìm danh sách các Node Label có chứa keyword này"""
     return KEYWORD_TO_LABELS.get(keyword.lower().strip(), set())
