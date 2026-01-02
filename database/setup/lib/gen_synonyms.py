@@ -3,8 +3,6 @@ import inflect
 import nltk
 from nltk.corpus import wordnet as wn
 
-# --- SETUP: Tải dữ liệu tối giản ---
-# Chỉ cần WordNet, bỏ hết các model NLP nặng nề
 try:
     nltk.data.find('corpora/wordnet.zip')
     nltk.data.find('corpora/omw-1.4.zip')
@@ -15,21 +13,21 @@ except LookupError:
 
 p = inflect.engine()
 
-# --- CẤU HÌNH STRICT MODE ---
+# --- STRICT MODE CONFIGURATION ---
 
-# 1. DANH SÁCH ĐEN (Chặn đứng các từ quá rộng)
-# Đây là lớp bảo vệ quan trọng nhất để chặn "shellfish" khi search "mollusk"
+# 1. BLACKLIST (ban over-narrow words)
+# This is the most important guard layer to prevent returning "shellfish" when search "mollusk"
 BLACKLIST_SYNONYMS = {
     "shellfish", "seafood", "meat", "vegetable", "fruit", "fish", 
     "ingredient", "nutrient", "matter", "object", "whole", "organism",
     "animal", "plant", "foodstuff", "produce", "chow", "edible"
 }
 
-# 2. NGƯỠNG TƯƠNG ĐỒNG (90%)
-# Chỉ lấy từ đồng nghĩa nếu nó cực kỳ sát nghĩa gốc
+# 2. SIMILAR THRESHOLD (90%)
+# Only use synonyms if they are extremely close to the original meaning
 STRICT_SIMILARITY_THRESHOLD = 0.90 
 
-# 3. TỪ ĐIỂN TỪ RÁC (Thay thế cho NLP)
+# 3. TRASH WORD DICTIONARY
 FOODON_STOP_WORDS = {
     "product", "products", "item", "items", "food", "foods", 
     "beverage", "drink", "dish", "meal", "agent", "substance", 
@@ -55,7 +53,7 @@ def split_compound_text(text):
 
 def get_strict_synonyms(word):
     """
-    Tra từ điển WordNet với chế độ lọc nghiêm ngặt
+    Searching WordNet with strict mode
     """
     synonyms = set()
     word_clean = word.replace(" ", "_")
@@ -63,7 +61,7 @@ def get_strict_synonyms(word):
     synsets = wn.synsets(word_clean)
     if not synsets: return set()
     
-    # Tìm nhóm nghĩa chính (Primary Synset)
+    # Find primary synonyms (Primary Synset)
     primary_synset = None
     for s in synsets:
         if s.lexname() in SAFE_LEXNAMES:
@@ -72,10 +70,10 @@ def get_strict_synonyms(word):
     if not primary_synset: primary_synset = synsets[0]
 
     for syn in synsets:
-        # Lọc 1: Chỉ lấy nhóm nghĩa Thực phẩm/Động/Thực vật
+        # Filter 1: Only get food/plant synonym set
         if syn.lexname() not in SAFE_LEXNAMES: continue
         
-        # Lọc 2: Độ tương đồng phải rất cao (> 0.9)
+        # Filter 2: Similarity need to be extremely high (> 0.9)
         similarity = primary_synset.wup_similarity(syn)
         if similarity is None or similarity < STRICT_SIMILARITY_THRESHOLD:
             continue
@@ -83,7 +81,7 @@ def get_strict_synonyms(word):
         for lemma in syn.lemmas():
             clean_syn = lemma.name().replace("_", " ").lower()
             
-            # Lọc 3: Blacklist (Chặn shellfish, seafood...)
+            # Filter 3: Blacklist (prevent shellfish, seafood...)
             if clean_syn in BLACKLIST_SYNONYMS: continue
             
             if clean_syn != word.replace("_", " "):
@@ -104,18 +102,17 @@ def gen_synonyms(original_label):
 
     for variant in variations_to_process:
         
-        # --- BƯỚC 1: LỌC TỪ RÁC (Thay thế NLP) ---
-        # "mollusk food product" -> bỏ "food", "product" -> còn "mollusk"
+        # --- STEP 1: TRASH WORD FILTERING ---
+        # "mollusk food product" -> remove "food", "product" -> remain only "mollusk"
         words = variant.split()
         meaningful = [w for w in words if w not in FOODON_STOP_WORDS]
         
-        # Nếu lọc xong mà còn lại từ có nghĩa thì lấy, không thì lấy gốc
         core_term = " ".join(meaningful) if meaningful else variant
 
         if len(core_term) < 2: continue
         unique_synonyms.add(core_term)
         
-        # --- BƯỚC 2: SỐ ÍT/NHIỀU ---
+        # --- STEP 2: GENERATE SINGULAR/PLURAL ---
         try:
             singular = p.singular_noun(core_term)
             if singular is False:
@@ -125,19 +122,19 @@ def gen_synonyms(original_label):
                 unique_synonyms.add(singular)
         except: pass
             
-        # --- BƯỚC 3: TRA TỪ ĐIỂN SÁT NGHĨA ---
-        # Chỉ tra những từ ngắn gọn (<= 2 từ đơn) để tránh rác
+        # --- STEP 3: SEARCHING DICTIONARY ---
+        # Only search for short word (<= 2 single word) to avoid trash word
         if len(core_term.split()) <= 2:
             wn_syns = get_strict_synonyms(core_term)
             unique_synonyms.update(wn_syns)
 
-        # Logic đảo từ (Apple Juice <-> Juice Apple)
+        # Swapping word logic (Apple Juice <-> Juice Apple)
         words = core_term.split()
         if len(words) == 2:
             reversed_term = f"{words[1]} {words[0]}"
             unique_synonyms.add(reversed_term)
 
-    # Clean-up cuối cùng
+    # Final Clean-up
     final_list = list(unique_synonyms)
     original_lower = original_label.lower().strip()
     if original_lower in final_list:
