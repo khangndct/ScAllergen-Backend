@@ -34,7 +34,7 @@ Instructions for setting up the development environment.
 #### 1. Clone the repository:
 
 ```bash
-https://github.com/khangndct/ScAllergen-Backend.git
+git clone https://github.com/khangndct/ScAllergen-Backend.git
 cd scallergen-backend
 ```
 
