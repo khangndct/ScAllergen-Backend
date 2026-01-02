@@ -37,7 +37,7 @@ print(">>> START BUILDING KNOWLEDGE GRAPH...")
 # ▙▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▟
 
 step_start = time.time()
-print("\n > [1/5] Loading OWL file...")
+print("\n > [1/4] Loading OWL file...")
 
 
 
@@ -450,7 +450,7 @@ FOOD_PRODUCT_IRI = "http://purl.obolibrary.org/obo/FOODON_00001002"
 # ▙▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▟
 
 step_start = time.time()
-print("\n[2/5] Importing Nodes & Relations to Neo4j...")
+print("\n[2/4] Importing Nodes & Relations to Neo4j...")
 
 with driver.session() as session:
     setup_constraints()
@@ -471,7 +471,7 @@ print(f"-> Done in {execution_times['Import Data']:.2f} seconds")
 # ▙▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▟
 
 step_start = time.time()
-print("\n[2.5/5] Removing Nameless/Labelless Nodes...")
+print("\n[2.5/4] Removing Nameless/Labelless Nodes...")
 
 # Gọi hàm xóa node
 remove_nameless_nodes() 
@@ -487,7 +487,7 @@ print(f"-> Done in {execution_times['Remove Nameless']:.2f} seconds")
 # ▙▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▟
 
 step_start = time.time()
-print("\n[3/5] Merging Duplicate Nodes (APOC)...")
+print("\n[3/4] Merging Duplicate Nodes (APOC)...")
 
 def merge_duplicate_nodes_by_label():
     # 1. Kiểm tra APOC
@@ -536,97 +536,12 @@ merge_duplicate_nodes_by_label()
 execution_times['Merge Nodes'] = time.time() - step_start
 print(f"-> Done in {execution_times['Merge Nodes']:.2f} seconds")
 
-
 # ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▜
-# ▌PART 4:  EMBEDDING GRAPH                           ▐
+# ▌PART 4:  INDEXING                                 ▐
 # ▙▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▟
 
 step_start = time.time()
-print("\n[4/5] Generating Embeddings...")
-
-print("Loading Embedding Model (all-MiniLM-L6-v2)...")
-embed_model = SentenceTransformer('all-MiniLM-L6-v2')
-
-def update_embeddings_batch(tx, batch_data):
-    """
-    Update vector embedding vào node.
-    """
-    query = """
-    UNWIND $batch AS row
-    MATCH (n:FoodOnTerm {label: row.label}) 
-    SET n.embedding = row.embedding
-    """
-    tx.run(query, batch=batch_data)
-
-def generate_and_store_embeddings():
-    print("Start generating embeddings...")
-    
-    # 1. Lấy dữ liệu cần thiết: Label + Synonyms
-    # Chỉ lấy node chưa có embedding để tiết kiệm thời gian (nếu chạy lại)
-    # Hoặc bỏ điều kiện `AND n.embedding IS NULL` nếu muốn chạy lại từ đầu
-    fetch_query = """
-    MATCH (n:FoodOnTerm) 
-    WHERE n.label IS NOT NULL 
-    RETURN n.label AS label, n.synonyms AS synonyms
-    """
-    
-    with driver.session() as session:
-        result = session.run(fetch_query)
-        # Lưu vào list dict để xử lý dần
-        nodes_data = [{"label": r['label'], "synonyms": r['synonyms']} for r in result]
-    
-    total_nodes = len(nodes_data)
-    print(f"-> Found {total_nodes} nodes to embed.")
-    
-    if total_nodes == 0:
-        return
-
-    batch_data = []
-    processed_count = 0
-    
-    for item in nodes_data:
-        label = item['label']
-        syns = item['synonyms']
-        
-        # --- LOGIC QUAN TRỌNG: GỘP TEXT ---
-        # "Tofu. Synonyms: bean curd, soybean curd"
-        text_to_embed = label
-        if syns and isinstance(syns, list) and len(syns) > 0:
-            # Nối các synonym lại bằng dấu phẩy
-            syn_str = ", ".join(syns)
-            text_to_embed = f"{label}. Synonyms: {syn_str}"
-            
-        # Tạo vector từ đoạn văn bản giàu thông tin này
-        vector = embed_model.encode(text_to_embed).tolist()
-        
-        batch_data.append({
-            "label": label,
-            "embedding": vector
-        })
-        
-        if len(batch_data) >= BATCH_SIZE:
-            with driver.session() as session:
-                session.execute_write(update_embeddings_batch, batch_data)
-            processed_count += len(batch_data)
-            print(f"   Embedded & Updated: {processed_count}/{total_nodes}")
-            batch_data = []
-
-    if batch_data:
-        with driver.session() as session:
-            session.execute_write(update_embeddings_batch, batch_data)
-        print(f"   Embedded & Updated: {total_nodes}/{total_nodes}")
-
-generate_and_store_embeddings()
-
-execution_times['Embedding'] = time.time() - step_start
-print(f"-> Done in {execution_times['Embedding']:.2f} seconds")
-
-# ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▜
-# ▌PART 5:  INDEXING                                 ▐
-# ▙▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▟
-
-step_start = time.time()
-print("\n[5/5] Creating Indexes...")
+print("\n[4/4] Creating Indexes...")
 
 def create_indexes():
     with driver.session() as session:
