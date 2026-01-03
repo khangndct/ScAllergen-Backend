@@ -56,13 +56,13 @@ def load_data_from_neo4j(driver):
     FOOD_NAMES_LIST = list(FOOD_CACHE.keys())
     print(f"✅ Load done! {len(FOOD_NAMES_LIST)} keys from {count} nodes.")
 
-def hybrid_scorer_07_03(query, choice, **kwargs):
+def hybrid_scorer_05_05(query, choice, **kwargs):
     """
-    Strategy: Hybrid 0.7/0.3 (Winner)
+    Strategy: Hybrid 0.5/0.5 (Winner)
     """
     score_char = fuzz.ratio(query, choice)
     score_token = fuzz.token_sort_ratio(query, choice)
-    return (0.7 * score_char) + (0.3 * score_token)
+    return (0.5 * score_char) + (0.5 * score_token)
 
 
 def find_top_nodes_in_memory(text_input: str, limit: int = 1):
@@ -75,7 +75,7 @@ def find_top_nodes_in_memory(text_input: str, limit: int = 1):
     results = process.extract(
         query, 
         FOOD_NAMES_LIST, 
-        scorer=hybrid_scorer_07_03, 
+        scorer=hybrid_scorer_05_05, 
         limit=candidates_pool_size,               
         score_cutoff=60            
     )
